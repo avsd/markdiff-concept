@@ -89,7 +89,9 @@ Marking method is mostly custom and dependent on format used:
   <p class="changed">Some changed paragraph.</p> 
 ------------------------------------------------
 
-
+As a result, in 'Presentation View' changed sections will be marked,
+so reader will see which parts of the document were modified since
+previous revision.
 
 Design
 ------
@@ -127,7 +129,7 @@ digraph G {
     pp2 -> difffile[style=invis]
     {pp1 pp2} -> diff [headport=n]
     diff -> difffile
-    {pp1 difffile} -> mark ->markedfile
+    {pp1 difffile} -> mark -> markedfile
 }
 ------------------------------------------------------------
 
