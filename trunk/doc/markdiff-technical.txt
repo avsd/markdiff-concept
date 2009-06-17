@@ -1,7 +1,7 @@
 Technical documentation of +rediff+ tool
 ========================================
 David Avsajanishvili <avsd05@gmail.com>
-v0.1
+v0.1,
 
 
 
@@ -28,7 +28,7 @@ Comparing files
 ~~~~~~~~~~~~~~~
 
 http://unixhelp.ed.ac.uk/CGI/man-cgi?diff[Diff] utility is used in
-Unix-like systems for comparing two text files. It's common useage
+Unix-like systems for comparing two text files. It's common usage
 is tracking changes in files after modification. The utility performs
 comparison on per-line basis:
 
@@ -43,7 +43,7 @@ comparison on per-line basis:
 Text files are compared line by line. It means, that an atomic
 part of the comparison is a 'line', terminated with 'newline
 character sequence' (usually, +{backslash}n+ or +{backslash}r{backslash}n+)
-or end-of-file. Let's call it Section. So, in plain text file 'Section'
+or end-of-file. Let's call it ``Section''. So, in plain text file 'Section'
 represents a line of text. It is the simplest way of comparing files and
 very useful for code sources, configuration files, plain-text documentation,
 etc.
@@ -51,11 +51,12 @@ etc.
 Although, there are formats for which atomic 'Section' can't be represented
 as just a line. For example:
 
-- In XHTML, XML, and related formats 'Section' is represented as a fragment
-  of text wrapped in 'Opening' and 'Closing' tags. For example,
-  ++<p>Single section</p>++. Also, it is not mandatory that such sections
-  must fit on single line only. Moreover, one section may contain others
-  (example: ++<p>Section with <b>bold text</b> inside</p>++).
+- In http://www.w3.org/MarkUp/[XHTML], http://www.w3.org/XML/[XML],
+  http://www.docbook.org/[DocBook] and related formats 'Section' is
+  represented as a fragment of text wrapped in 'Opening' and 'Closing' tags.
+  For example,  ++<p>Single section</p>++. Also, it is not mandatory that such
+  sections must fit on single line only. Moreover, one section may contain
+  others (example: ++<p>Section with <b>bold text</b> inside</p>++).
 - In Wiki, AsciiDoc, Markdown and other text-based markup languages
   'Section' is a fragment of text, defined by the syntax of corresponding
   language (header, paragraph, etc.).
@@ -68,7 +69,67 @@ by format of the file, not only line by line.
 Marking differences in file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TODO!
+When working on text files with presentation different from plain-text
+(such as HTML or DocBook) it is handy to mark changed 'Sections' in it.
+Marking method is mostly custom and dependent on format used:
+
+- In http://www.docbook.org/[DocBook] differences are marked with
+  +revisionflag+ attribute in tags:
++  
+[source,xml]
+-----------------------------------------------------------------
+<simpara revisionflag="changed">Some changed paragraph.</simpara> 
+-----------------------------------------------------------------
++
+- In http://www.w3.org/MarkUp/[HTML/XHTML] it is useful to mark
+  differences with +class+ attribute:
++
+[source,html]
+------------------------------------------------
+  <p class="changed">Some changed paragraph.</p> 
+------------------------------------------------
 
 
 
+Design
+------
+
+
+["graphviz", "rediff_working.png", "dot", scaledwidth="40%"]
+------------------------------------------------------------
+digraph G {
+
+    node[shape=box]
+    src1[label="Current Source"]
+    src2[label="Old Source"]
+    markedfile[label="Source with\nchanges marked"]
+
+    node[shape=box3d,style=filled,fillcolor=lightyellow]
+    diff
+
+    subgraph cluster1 {
+        label="rediff"
+        //style=filled fillcolor=red
+
+        node[shape=box,style="filled,rounded"]
+        {rank=same
+        pp1[label="Pre-process file\nfor diffing"]
+        pp2[label="Pre-process file\nfor diffing",group="g1"]
+        }
+        mark[label="Mark changes",group="g1"]
+
+        node[style=""]
+        difffile[label="diff output\nfile"]
+    }
+
+    src1 -> pp1
+    src2 -> pp2
+    pp2 -> difffile[style=invis]
+    {pp1 pp2} -> diff [headport=n]
+    diff -> difffile
+    {pp1 difffile} -> mark ->markedfile
+}
+------------------------------------------------------------
+
+The +rediff+ uses standard +diff+ program for finding differencies.
+TODO!...
